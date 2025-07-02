@@ -21,10 +21,58 @@ const CONFIG = {
 document.addEventListener('DOMContentLoaded', function() {
     initializeMap();
     setupEventListeners();
+    setupModalEventListeners();
     loadFlightData();
     startAutoUpdate();
+    checkUrlParameters();
     showNotification('Welcome to SkyTracker Pro! 🛩️', 'success');
 });
+
+// Setup modal event listeners
+function setupModalEventListeners() {
+    // Close modal buttons
+    const closeModalBtns = document.querySelectorAll('.modal .close-btn');
+    closeModalBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const modal = btn.closest('.modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        });
+    });
+    
+    // Close modals when clicking outside
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal')) {
+            e.target.style.display = 'none';
+        }
+    });
+}
+
+// Check URL parameters for shared flights
+function checkUrlParameters() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const flightId = urlParams.get('flight');
+    
+    if (flightId) {
+        // Wait for flights to load, then find and show the specific flight
+        const checkForFlight = () => {
+            const flight = allFlights.find(f => f.icao24 === flightId);
+            if (flight) {
+                map.setView([flight.latitude, flight.longitude], 10);
+                showFlightDetails(flight);
+                showNotification(`Viewing shared flight: ${flight.callsign || 'Unknown'}`, 'info');
+            } else if (allFlights.length > 0) {
+                showNotification('Shared flight not found or not currently active', 'warning');
+            } else {
+                // Retry in 2 seconds if flights haven't loaded yet
+                setTimeout(checkForFlight, 2000);
+            }
+        };
+        
+        setTimeout(checkForFlight, 1000);
+    }
+}
 
 // Initialize the Leaflet map
 function initializeMap() {
@@ -192,6 +240,16 @@ function displayFlights() {
     });
 
     updateFlightVisibility();
+    
+    // Update 3D engine if available
+    if (window.skyTracker3D) {
+        window.skyTracker3D.updateFlights(validFlights);
+    }
+    
+    // Update weather data for flights if enabled
+    if (window.weatherSystem && window.weatherSystem.isEnabled) {
+        window.weatherSystem.updateFlightWeatherData(validFlights);
+    }
 }
 
 // Create a flight marker
@@ -257,7 +315,13 @@ function showFlightDetails(flight) {
     
     content.innerHTML = createFlightDetailsHTML(flight);
     sidebar.classList.add('open');
+    
+    // Store globally for other systems
+    window.selectedFlight = flight;
 }
+
+// Make showFlightDetails globally accessible
+window.showFlightDetails = showFlightDetails;
 
 // Create flight details HTML
 function createFlightDetailsHTML(flight) {
@@ -345,6 +409,7 @@ function createFlightDetailsHTML(flight) {
 function closeSidebar() {
     document.getElementById('sidebar').classList.remove('open');
     selectedFlight = null;
+    window.selectedFlight = null;
 }
 
 // Handle search functionality
@@ -400,10 +465,29 @@ function updateStats() {
 
     const countries = new Set(allFlights.map(f => f.originCountry)).size;
     const airborne = allFlights.filter(f => !f.onGround).length;
+    
+    // Calculate average altitude
+    const altitudes = allFlights
+        .filter(f => f.baroAltitude && !f.onGround)
+        .map(f => f.baroAltitude);
+    const avgAltitude = altitudes.length > 0 
+        ? Math.round(altitudes.reduce((a, b) => a + b, 0) / altitudes.length)
+        : 0;
 
     document.getElementById('totalFlights').textContent = airborne.toLocaleString();
     document.getElementById('totalAirports').textContent = visibleFlights.length.toLocaleString();
     document.getElementById('totalCountries').textContent = countries.toLocaleString();
+    
+    // Update average altitude if element exists
+    const avgAltElement = document.getElementById('avgAltitude');
+    if (avgAltElement) {
+        avgAltElement.textContent = avgAltitude > 0 ? `${(avgAltitude / 1000).toFixed(1)}k ft` : '---';
+    }
+    
+    // Update mini map if available
+    if (window.advancedFeatures) {
+        window.advancedFeatures.updateMiniMap();
+    }
 }
 
 // Start auto-update
