@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyTracker Pro - Real-Time Flight Tracking</title>
+    
+    <!-- Meta Tags -->
+    <meta name="description" content="Premium flight tracking with real-time aircraft positions. No ads, no subscriptions. Track flights worldwide with SkyTracker Pro.">
+    <meta name="keywords" content="flight tracking, real-time flights, aircraft tracking, aviation, flight radar, no ads">
+    <meta name="author" content="SkyTracker Pro">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="SkyTracker Pro - Premium Flight Tracking">
+    <meta property="og:description" content="Premium flight tracking with real-time aircraft positions. No ads, no subscriptions.">
+    <meta property="og:image" content="favicon.svg">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="SkyTracker Pro - Premium Flight Tracking">
+    <meta property="twitter:description" content="Premium flight tracking with real-time aircraft positions. No ads, no subscriptions.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.svg">
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://opensky-network.org">
+    <link rel="preconnect" href="https://corsproxy.io">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-plane"></i>
+                    <span>SkyTracker Pro</span>
+                </div>
+                <div class="search-container">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search flight number, airport, or airline...">
+                        <button class="search-btn" id="searchBtn">Search</button>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn" id="refreshBtn" title="Refresh Data">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="action-btn" id="layersBtn" title="Map Layers">
+                        <i class="fas fa-layer-group"></i>
+                    </button>
+                    <button class="action-btn" id="settingsBtn" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Map Container -->
+            <div class="map-container">
+                <div id="map"></div>
+                
+                <!-- Map Controls -->
+                <div class="map-controls">
+                    <div class="control-group">
+                        <button class="control-btn" id="zoomInBtn" title="Zoom In">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="control-btn" id="zoomOutBtn" title="Zoom Out">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                    <div class="control-group">
+                        <button class="control-btn" id="centerBtn" title="Center Map">
+                            <i class="fas fa-crosshairs"></i>
+                        </button>
+                        <button class="control-btn" id="fullscreenBtn" title="Fullscreen">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Statistics Panel -->
+                <div class="stats-panel">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalFlights">---</div>
+                        <div class="stat-label">Active Flights</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalAirports">---</div>
+                        <div class="stat-label">Airports</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalCountries">---</div>
+                        <div class="stat-label">Countries</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <h3>Flight Details</h3>
+                    <button class="close-btn" id="closeSidebar">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="sidebar-content" id="sidebarContent">
+                    <div class="no-selection">
+                        <i class="fas fa-mouse-pointer"></i>
+                        <p>Click on a flight to view details</p>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Loading flight data...</p>
+            </div>
+        </div>
+
+        <!-- Notification System -->
+        <div class="notification-container" id="notificationContainer"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
