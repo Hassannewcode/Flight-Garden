@@ -1647,3 +1647,306 @@ kbd {
         height: 120px;
     }
 }
+
+/* Performance Monitor Styles */
+.performance-indicator {
+    background: var(--surface-color);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.performance-indicator::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.performance-indicator.excellent::after {
+    background: #22c55e;
+    box-shadow: 0 0 6px #22c55e;
+}
+
+.performance-indicator.good::after {
+    background: #3b82f6;
+    box-shadow: 0 0 6px #3b82f6;
+}
+
+.performance-indicator.fair::after {
+    background: #f59e0b;
+    box-shadow: 0 0 6px #f59e0b;
+}
+
+.performance-indicator.poor::after {
+    background: #ef4444;
+    box-shadow: 0 0 6px #ef4444;
+    animation: pulse 2s infinite;
+}
+
+.performance-indicator:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.performance-panel {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    width: 280px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    z-index: 10000;
+    display: none;
+    box-shadow: var(--shadow-xl);
+}
+
+.performance-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.performance-header h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.performance-content {
+    padding: 1.5rem;
+}
+
+.metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.metric:last-child {
+    margin-bottom: 0;
+}
+
+.metric-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.metric-value {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+/* Enhanced Flight Marker Styles */
+.flight-marker.highlighted {
+    animation: highlightPulse 2s ease-in-out;
+    z-index: 1000 !important;
+}
+
+@keyframes highlightPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+    }
+    50% {
+        transform: scale(1.5);
+        box-shadow: 0 0 0 20px rgba(59, 130, 246, 0);
+    }
+}
+
+.flight-icon.emergency {
+    background: #ef4444 !important;
+    animation: emergencyBlink 1s infinite;
+}
+
+@keyframes emergencyBlink {
+    0%, 50% {
+        opacity: 1;
+    }
+    51%, 100% {
+        opacity: 0.3;
+    }
+}
+
+.flight-icon.tracked {
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.8);
+    background: #22c55e !important;
+}
+
+/* Advanced Search Enhancements */
+.search-results-indicator {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    min-width: 120px;
+    text-align: center;
+}
+
+/* Enhanced Loading States */
+.loading-overlay.enhanced {
+    background: linear-gradient(135deg, 
+        rgba(15, 23, 42, 0.95) 0%, 
+        rgba(30, 41, 59, 0.95) 100%);
+}
+
+.loading-spinner.enhanced {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.loading-spinner.enhanced .spinner {
+    width: 60px;
+    height: 60px;
+    border-width: 4px;
+    border-color: var(--primary-color) transparent transparent transparent;
+}
+
+.loading-progress-text {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+/* Flight Alert Enhancements */
+.flight-alert.enhanced {
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.flight-alert.enhanced::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        var(--primary-color) 0%, 
+        var(--success-color) 50%, 
+        var(--primary-color) 100%);
+    animation: progressGlow 2s ease-in-out infinite;
+}
+
+@keyframes progressGlow {
+    0%, 100% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Enhanced Statistics Display */
+.stats-panel.enhanced {
+    background: linear-gradient(135deg, 
+        var(--glass-bg) 0%, 
+        rgba(59, 130, 246, 0.1) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.stat-item.enhanced {
+    position: relative;
+    padding: 1rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.stat-item.enhanced:hover {
+    background: rgba(59, 130, 246, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Mobile Performance Optimizations */
+@media (max-width: 768px) {
+    .performance-panel {
+        width: calc(100% - 40px);
+        right: 20px;
+        left: 20px;
+    }
+    
+    .performance-indicator {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .metric {
+        font-size: 0.8rem;
+    }
+    
+    .flight-marker.highlighted {
+        animation-duration: 1s;
+    }
+}
+
+/* Dark mode enhancements */
+@media (prefers-color-scheme: dark) {
+    .performance-panel {
+        background: rgba(15, 23, 42, 0.95);
+        border-color: rgba(59, 130, 246, 0.2);
+    }
+    
+    .flight-alert.enhanced {
+        background: rgba(30, 41, 59, 0.8);
+    }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    .flight-marker.highlighted,
+    .performance-indicator::after,
+    .flight-icon.emergency {
+        animation: none;
+    }
+    
+    .flight-icon.emergency {
+        background: #ef4444 !important;
+        opacity: 1;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .performance-indicator {
+        border-width: 2px;
+        border-color: var(--text-primary);
+    }
+    
+    .flight-marker {
+        border: 2px solid var(--text-primary);
+    }
+}
