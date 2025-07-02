@@ -141,6 +141,26 @@ The application provides comprehensive keyboard shortcuts for efficient operatio
 | `↑/↓` | Flight Navigation | Select previous/next flight in list |
 | `Ctrl+R` | Refresh | Force reload of all flight data |
 
+### Mobile Touch Interactions
+On mobile devices, the application provides intuitive touch-based interactions:
+
+| Gesture | Action | Description |
+|---------|--------|-------------|
+| **Tap** | Select Flight | Tap aircraft marker to view details |
+| **Swipe Right** | Close Sidebar | Swipe right on open sidebar to close |
+| **Swipe Left** | Open Sidebar | Swipe left from right edge (when flight selected) |
+| **Long Press** | Context Menu | Long press on map for quick actions menu |
+| **Pull Down** | Refresh Data | Pull down from top to refresh flight data |
+| **Pinch/Zoom** | Map Navigation | Standard map zoom and pan gestures |
+| **Double Tap** | Quick Zoom | Double tap to zoom to location |
+
+### Mobile Control Bar
+The bottom control bar provides quick access to essential functions:
+- **Search**: Activate flight search
+- **Filters**: Open flight filtering options  
+- **Weather**: Toggle weather overlay
+- **3D**: Switch to 3D viewing mode
+
 ### Search Capabilities
 - **Flight Callsign**: Direct flight identification
 - **Country Filter**: Filter aircraft by country of origin
@@ -154,6 +174,14 @@ The application provides comprehensive keyboard shortcuts for efficient operatio
 - **Aircraft Type**: Commercial, cargo, private, military categories
 - **Flight Status**: Airborne vs. ground-based aircraft
 - **Geographic Bounds**: Map viewport-based filtering
+
+### Mobile Features
+- **Touch Gestures**: Swipe to open/close sidebar, long-press for context menu
+- **Pull-to-Refresh**: Native mobile refresh gesture support
+- **Mobile Controls**: Bottom navigation bar with essential functions
+- **Orientation Support**: Automatic layout adjustment for portrait/landscape
+- **Haptic Feedback**: Vibration feedback for touch interactions (where supported)
+- **Fullscreen Mode**: Immersive viewing experience on mobile devices
 
 ## Data Architecture
 
@@ -195,7 +223,7 @@ The application provides comprehensive keyboard shortcuts for efficient operatio
 - **Update Rate**: 10-second real-time data refresh
 - **Memory Usage**: Efficient marker management and cleanup
 - **Network Efficiency**: Compressed data transmission
-- **Responsive Design**: < 768px mobile optimization
+- **Responsive Design**: Full mobile optimization with touch support
 
 ## Security and Privacy
 
@@ -257,10 +285,11 @@ skytracker-pro/
 ## Technical Specifications
 
 ### Browser Support
-- **Chrome**: Version 80+
-- **Firefox**: Version 75+
-- **Safari**: Version 13+
-- **Edge**: Version 80+
+- **Chrome**: Version 80+ (Desktop & Mobile)
+- **Firefox**: Version 75+ (Desktop & Mobile)
+- **Safari**: Version 13+ (Desktop & Mobile iOS)
+- **Edge**: Version 80+ (Desktop & Mobile)
+- **Mobile Browsers**: Full support for iOS Safari, Chrome Mobile, Samsung Internet
 
 ### API Dependencies
 - **OpenSky Network**: Real-time flight data
@@ -272,6 +301,8 @@ skytracker-pro/
 - **Update Processing**: < 500ms for 1000 aircraft
 - **Memory Usage**: < 100MB for full global view
 - **Network Usage**: ~10MB per hour of continuous operation
+- **Mobile Performance**: Optimized rendering for 60fps on modern mobile devices
+- **Touch Response**: < 16ms touch-to-visual feedback latency
 
 ## License
 

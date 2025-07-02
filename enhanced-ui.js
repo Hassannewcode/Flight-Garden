@@ -9,6 +9,10 @@ class PremiumUI {
         this.viewPresets = new Map();
         this.flightAlerts = new Map();
         this.keyboardShortcuts = new Map();
+        this.isMobile = this.detectMobile();
+        this.touchStartX = 0;
+        this.touchStartY = 0;
+        this.lastTouchTime = 0;
         
         this.init();
     }
@@ -23,7 +27,503 @@ class PremiumUI {
         this.setupPremiumAnimations();
         this.setupContextMenus();
         this.setupTooltips();
+        this.setupMobileSupport();
         console.log('🎨 Premium UI System activated');
+    }
+
+    detectMobile() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+               ('ontouchstart' in window) ||
+               (navigator.maxTouchPoints > 0);
+    }
+
+    setupMobileSupport() {
+        if (!this.isMobile) return;
+        
+        console.log('📱 Mobile device detected - enabling touch features');
+        
+        // Setup touch gestures
+        this.setupTouchGestures();
+        
+        // Setup pull-to-refresh
+        this.setupPullToRefresh();
+        
+        // Setup mobile-optimized controls
+        this.setupMobileControls();
+        
+        // Setup orientation handling
+        this.setupOrientationHandling();
+        
+        // Add mobile-specific CSS class
+        document.body.classList.add('mobile-device');
+        
+        // Disable hover effects on mobile
+        const style = document.createElement('style');
+        style.textContent = `
+            @media (hover: none) {
+                .action-btn:hover,
+                .control-btn:hover,
+                .suggestion-item:hover,
+                .preset-item:hover,
+                .context-item:hover {
+                    transform: none !important;
+                    background: inherit !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    setupTouchGestures() {
+        // Swipe to open/close sidebar
+        const sidebar = document.getElementById('sidebar');
+        const mapContainer = document.querySelector('.map-container');
+        
+        // Touch events for sidebar swipe
+        mapContainer.addEventListener('touchstart', (e) => {
+            this.touchStartX = e.touches[0].clientX;
+            this.touchStartY = e.touches[0].clientY;
+            this.lastTouchTime = Date.now();
+        }, { passive: true });
+        
+        mapContainer.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const deltaX = touchEndX - this.touchStartX;
+            const deltaY = touchEndY - this.touchStartY;
+            const timeDelta = Date.now() - this.lastTouchTime;
+            
+            // Swipe left to open sidebar (from right edge)
+            if (deltaX < -100 && Math.abs(deltaY) < 100 && timeDelta < 300 && this.touchStartX > window.innerWidth - 50) {
+                if (window.selectedFlight) {
+                    sidebar.classList.add('open');
+                    this.playSound('click');
+                }
+            }
+            
+            // Swipe right to close sidebar
+            if (deltaX > 100 && Math.abs(deltaY) < 100 && timeDelta < 300 && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                this.playSound('click');
+            }
+        }, { passive: true });
+        
+        // Long press for context menu
+        let longPressTimer;
+        mapContainer.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                longPressTimer = setTimeout(() => {
+                    // Trigger vibration if available
+                    if (navigator.vibrate) {
+                        navigator.vibrate(50);
+                    }
+                    
+                    // Show mobile context menu
+                    this.showMobileContextMenu(e.touches[0].clientX, e.touches[0].clientY);
+                }, 500);
+            }
+        }, { passive: true });
+        
+        mapContainer.addEventListener('touchend', () => {
+            clearTimeout(longPressTimer);
+        }, { passive: true });
+        
+        mapContainer.addEventListener('touchmove', () => {
+            clearTimeout(longPressTimer);
+        }, { passive: true });
+    }
+
+    setupPullToRefresh() {
+        let startY = 0;
+        let currentY = 0;
+        let isPulling = false;
+        const threshold = 80;
+        
+        // Create pull-to-refresh indicator
+        const refreshIndicator = document.createElement('div');
+        refreshIndicator.className = 'pull-refresh-indicator';
+        refreshIndicator.innerHTML = `
+            <div class="refresh-spinner">
+                <i class="fas fa-sync-alt"></i>
+            </div>
+            <span>Pull to refresh</span>
+        `;
+        document.body.appendChild(refreshIndicator);
+        
+        // Add CSS for refresh indicator
+        const style = document.createElement('style');
+        style.textContent = `
+            .pull-refresh-indicator {
+                position: fixed;
+                top: -80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: var(--glass-bg);
+                backdrop-filter: blur(20px);
+                border: 1px solid var(--border-color);
+                border-radius: 0 0 12px 12px;
+                padding: 1rem 2rem;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                color: var(--text-primary);
+                font-size: 0.875rem;
+                z-index: 10000;
+                transition: top 0.3s ease;
+            }
+            
+            .pull-refresh-indicator.visible {
+                top: 0;
+            }
+            
+            .pull-refresh-indicator.refreshing .refresh-spinner {
+                animation: spin 1s linear infinite;
+            }
+            
+            .refresh-spinner {
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        document.addEventListener('touchstart', (e) => {
+            if (window.scrollY === 0) {
+                startY = e.touches[0].pageY;
+                isPulling = true;
+            }
+        }, { passive: true });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (isPulling) {
+                currentY = e.touches[0].pageY;
+                const pullDistance = currentY - startY;
+                
+                if (pullDistance > 0 && pullDistance < threshold * 2) {
+                    refreshIndicator.style.top = `${Math.min(pullDistance - 80, 0)}px`;
+                    
+                    if (pullDistance > threshold) {
+                        refreshIndicator.querySelector('span').textContent = 'Release to refresh';
+                        refreshIndicator.classList.add('ready');
+                    } else {
+                        refreshIndicator.querySelector('span').textContent = 'Pull to refresh';
+                        refreshIndicator.classList.remove('ready');
+                    }
+                }
+            }
+        }, { passive: true });
+        
+        document.addEventListener('touchend', (e) => {
+            if (isPulling) {
+                const pullDistance = currentY - startY;
+                
+                if (pullDistance > threshold) {
+                    // Trigger refresh
+                    refreshIndicator.classList.add('visible', 'refreshing');
+                    refreshIndicator.querySelector('span').textContent = 'Refreshing...';
+                    
+                    // Trigger data refresh
+                    if (window.loadFlightData) {
+                        window.loadFlightData().finally(() => {
+                            setTimeout(() => {
+                                refreshIndicator.classList.remove('visible', 'refreshing', 'ready');
+                                refreshIndicator.style.top = '-80px';
+                                refreshIndicator.querySelector('span').textContent = 'Pull to refresh';
+                            }, 1000);
+                        });
+                    }
+                    
+                    this.playSound('success');
+                } else {
+                    refreshIndicator.classList.remove('ready');
+                    refreshIndicator.style.top = '-80px';
+                }
+                
+                isPulling = false;
+                startY = 0;
+                currentY = 0;
+            }
+        }, { passive: true });
+    }
+
+    setupMobileControls() {
+        // Add mobile-specific control panel
+        const mobileControls = document.createElement('div');
+        mobileControls.className = 'mobile-controls';
+        mobileControls.innerHTML = `
+            <div class="mobile-control-row">
+                <button class="mobile-control-btn" id="mobileSearch">
+                    <i class="fas fa-search"></i>
+                    <span>Search</span>
+                </button>
+                <button class="mobile-control-btn" id="mobileFilters">
+                    <i class="fas fa-filter"></i>
+                    <span>Filters</span>
+                </button>
+                <button class="mobile-control-btn" id="mobileWeather">
+                    <i class="fas fa-cloud-rain"></i>
+                    <span>Weather</span>
+                </button>
+                <button class="mobile-control-btn" id="mobile3D">
+                    <i class="fas fa-cube"></i>
+                    <span>3D</span>
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(mobileControls);
+        
+        // Add mobile controls CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            .mobile-controls {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: var(--glass-bg);
+                backdrop-filter: blur(20px);
+                border-top: 1px solid var(--border-color);
+                padding: 0.75rem;
+                z-index: 1000;
+                display: none;
+            }
+            
+            @media (max-width: 768px) {
+                .mobile-controls {
+                    display: block;
+                }
+                
+                .map-container {
+                    padding-bottom: 80px;
+                }
+            }
+            
+            .mobile-control-row {
+                display: flex;
+                gap: 0.5rem;
+                justify-content: space-around;
+            }
+            
+            .mobile-control-btn {
+                flex: 1;
+                background: var(--surface-color);
+                border: 1px solid var(--border-color);
+                border-radius: 12px;
+                padding: 0.75rem 0.5rem;
+                color: var(--text-secondary);
+                font-size: 0.75rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.25rem;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                min-height: 60px;
+            }
+            
+            .mobile-control-btn:active {
+                background: var(--primary-color);
+                color: white;
+                transform: scale(0.95);
+            }
+            
+            .mobile-control-btn i {
+                font-size: 1.25rem;
+            }
+            
+            .mobile-control-btn span {
+                font-size: 0.6rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Add event listeners for mobile controls
+        document.getElementById('mobileSearch').addEventListener('click', () => {
+            document.getElementById('searchInput').focus();
+            this.playSound('click');
+        });
+        
+        document.getElementById('mobileFilters').addEventListener('click', () => {
+            // Trigger filters panel
+            const filtersBtn = document.querySelector('.action-btn[title*="Filter"]');
+            if (filtersBtn) filtersBtn.click();
+        });
+        
+        document.getElementById('mobileWeather').addEventListener('click', () => {
+            this.toggleWeather();
+        });
+        
+        document.getElementById('mobile3D').addEventListener('click', () => {
+            this.toggle3D();
+        });
+    }
+
+    setupOrientationHandling() {
+        const handleOrientationChange = () => {
+            // Delay to ensure dimensions are updated
+            setTimeout(() => {
+                // Resize map if available
+                if (window.map) {
+                    window.map.invalidateSize();
+                }
+                
+                // Update 3D canvas if available
+                if (window.skyTracker3D) {
+                    window.skyTracker3D.handleResize();
+                }
+                
+                // Show orientation hint for landscape
+                if (window.orientation === 90 || window.orientation === -90) {
+                    this.showNotification('Landscape mode: Enhanced viewing experience', 'info');
+                }
+            }, 100);
+        };
+        
+        window.addEventListener('orientationchange', handleOrientationChange);
+        window.addEventListener('resize', handleOrientationChange);
+    }
+
+    showMobileContextMenu(x, y) {
+        // Remove existing context menu
+        const existingMenu = document.querySelector('.mobile-context-menu');
+        if (existingMenu) {
+            existingMenu.remove();
+        }
+        
+        const contextMenu = document.createElement('div');
+        contextMenu.className = 'mobile-context-menu';
+        contextMenu.innerHTML = `
+            <div class="context-header">Quick Actions</div>
+            <div class="context-item" data-action="refresh">
+                <i class="fas fa-sync-alt"></i>
+                <span>Refresh Data</span>
+            </div>
+            <div class="context-item" data-action="center">
+                <i class="fas fa-crosshairs"></i>
+                <span>Center Map</span>
+            </div>
+            <div class="context-item" data-action="fullscreen">
+                <i class="fas fa-expand"></i>
+                <span>Fullscreen</span>
+            </div>
+            <div class="context-item" data-action="close">
+                <i class="fas fa-times"></i>
+                <span>Close</span>
+            </div>
+        `;
+        
+        // Position context menu
+        contextMenu.style.position = 'fixed';
+        contextMenu.style.left = `${Math.min(x, window.innerWidth - 200)}px`;
+        contextMenu.style.top = `${Math.min(y, window.innerHeight - 200)}px`;
+        
+        document.body.appendChild(contextMenu);
+        
+        // Add mobile context menu styles
+        if (!document.querySelector('style[data-mobile-context]')) {
+            const style = document.createElement('style');
+            style.setAttribute('data-mobile-context', '');
+            style.textContent = `
+                .mobile-context-menu {
+                    background: var(--glass-bg);
+                    backdrop-filter: blur(20px);
+                    border: 1px solid var(--border-color);
+                    border-radius: 16px;
+                    padding: 0.5rem;
+                    z-index: 10001;
+                    min-width: 180px;
+                    box-shadow: var(--shadow-xl);
+                    animation: slideUp 0.2s ease;
+                }
+                
+                .context-header {
+                    padding: 0.75rem;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    color: var(--text-muted);
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    border-bottom: 1px solid var(--border-color);
+                    margin-bottom: 0.5rem;
+                }
+                
+                .mobile-context-menu .context-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    padding: 1rem;
+                    border-radius: 12px;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    font-size: 0.875rem;
+                }
+                
+                .mobile-context-menu .context-item:active {
+                    background: var(--primary-color);
+                    color: white;
+                    transform: scale(0.98);
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Add event listeners
+        contextMenu.addEventListener('click', (e) => {
+            const action = e.target.closest('.context-item')?.dataset.action;
+            if (action) {
+                this.handleMobileContextAction(action);
+                contextMenu.remove();
+            }
+        });
+        
+        // Auto-close after 5 seconds
+        setTimeout(() => {
+            if (contextMenu.parentNode) {
+                contextMenu.remove();
+            }
+        }, 5000);
+    }
+
+    handleMobileContextAction(action) {
+        switch (action) {
+            case 'refresh':
+                if (window.loadFlightData) {
+                    window.loadFlightData();
+                }
+                break;
+            case 'center':
+                if (window.map) {
+                    window.map.setView([39.8283, -98.5795], 6);
+                }
+                break;
+            case 'fullscreen':
+                this.toggleFullscreen();
+                break;
+            case 'close':
+                // Close any open panels
+                this.closeAllModals();
+                break;
+        }
+        this.playSound('click');
+    }
+
+    toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {
+                // Fallback for iOS Safari
+                if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                }
+            });
+        } else {
+            document.exitFullscreen();
+        }
     }
 
     setupSoundSystem() {
