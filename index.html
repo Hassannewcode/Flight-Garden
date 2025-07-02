@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyTracker Pro - Real-Time Flight Tracking</title>
+    
+    <!-- Meta Tags -->
+    <meta name="description" content="Premium flight tracking with real-time aircraft positions. No ads, no subscriptions. Track flights worldwide with SkyTracker Pro.">
+    <meta name="keywords" content="flight tracking, real-time flights, aircraft tracking, aviation, flight radar, no ads">
+    <meta name="author" content="SkyTracker Pro">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="SkyTracker Pro - Premium Flight Tracking">
+    <meta property="og:description" content="Premium flight tracking with real-time aircraft positions. No ads, no subscriptions.">
+    <meta property="og:image" content="favicon.svg">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="SkyTracker Pro - Premium Flight Tracking">
+    <meta property="twitter:description" content="Premium flight tracking with real-time aircraft positions. No ads, no subscriptions.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.svg">
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://opensky-network.org">
+    <link rel="preconnect" href="https://corsproxy.io">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- 3D and Advanced Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-plane"></i>
+                    <span>SkyTracker Pro</span>
+                    <span class="beta-badge">3D</span>
+                </div>
+                <div class="search-container">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search flight number, airport, or airline...">
+                        <button class="search-btn" id="searchBtn">Search</button>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn" id="refreshBtn" title="Refresh Data">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="action-btn" id="view3DBtn" title="Toggle 3D View">
+                        <i class="fas fa-cube"></i>
+                    </button>
+                    <button class="action-btn" id="weatherBtn" title="Weather Overlay">
+                        <i class="fas fa-cloud-rain"></i>
+                    </button>
+                    <button class="action-btn" id="layersBtn" title="Map Layers">
+                        <i class="fas fa-layer-group"></i>
+                    </button>
+                    <button class="action-btn" id="settingsBtn" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Map Container -->
+            <div class="map-container">
+                <div id="map"></div>
+                <canvas id="webgl-canvas" class="webgl-overlay"></canvas>
+                
+                <!-- Advanced Controls Panel -->
+                <div class="advanced-controls">
+                    <div class="control-section">
+                        <h4>View Mode</h4>
+                        <div class="control-group horizontal">
+                            <button class="control-btn active" id="mode2D" data-mode="2d">
+                                <i class="fas fa-map"></i>
+                                <span>2D</span>
+                            </button>
+                            <button class="control-btn" id="mode3D" data-mode="3d">
+                                <i class="fas fa-cube"></i>
+                                <span>3D</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="control-section">
+                        <h4>Map Style</h4>
+                        <div class="control-group horizontal">
+                            <button class="control-btn active" data-style="dark">
+                                <i class="fas fa-moon"></i>
+                            </button>
+                            <button class="control-btn" data-style="satellite">
+                                <i class="fas fa-satellite"></i>
+                            </button>
+                            <button class="control-btn" data-style="terrain">
+                                <i class="fas fa-mountain"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="control-section">
+                        <h4>Overlays</h4>
+                        <div class="overlay-controls">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="weatherToggle">
+                                <span class="slider"></span>
+                                <span class="label">Weather</span>
+                            </label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="trafficToggle" checked>
+                                <span class="slider"></span>
+                                <span class="label">Air Traffic</span>
+                            </label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="airportsToggle">
+                                <span class="slider"></span>
+                                <span class="label">Airports</span>
+                            </label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="routesToggle">
+                                <span class="slider"></span>
+                                <span class="label">Flight Paths</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Map Controls -->
+                <div class="map-controls">
+                    <div class="control-group">
+                        <button class="control-btn" id="zoomInBtn" title="Zoom In">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="control-btn" id="zoomOutBtn" title="Zoom Out">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                    <div class="control-group">
+                        <button class="control-btn" id="centerBtn" title="Center Map">
+                            <i class="fas fa-crosshairs"></i>
+                        </button>
+                        <button class="control-btn" id="fullscreenBtn" title="Fullscreen">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                    <div class="control-group">
+                        <button class="control-btn" id="trackingBtn" title="Follow Selected Flight">
+                            <i class="fas fa-location-arrow"></i>
+                        </button>
+                        <button class="control-btn" id="recordBtn" title="Record Flight Path">
+                            <i class="fas fa-video"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Enhanced Statistics Panel -->
+                <div class="stats-panel">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalFlights">---</div>
+                        <div class="stat-label">Active Flights</div>
+                        <div class="stat-trend" id="flightsTrend">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+12</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalAirports">---</div>
+                        <div class="stat-label">Airports</div>
+                        <div class="stat-trend positive">
+                            <i class="fas fa-plane-departure"></i>
+                            <span>Active</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalCountries">---</div>
+                        <div class="stat-label">Countries</div>
+                        <div class="stat-trend">
+                            <i class="fas fa-globe"></i>
+                            <span>Global</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="avgAltitude">---</div>
+                        <div class="stat-label">Avg Altitude</div>
+                        <div class="stat-trend">
+                            <i class="fas fa-arrows-alt-v"></i>
+                            <span id="altitudeTrend">...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weather Info Panel -->
+                <div class="weather-panel" id="weatherPanel">
+                    <div class="weather-header">
+                        <h4>Weather Conditions</h4>
+                        <button class="close-btn" id="closeWeather">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="weather-content">
+                        <div class="weather-item">
+                            <i class="fas fa-thermometer-half"></i>
+                            <span>Temperature: <span id="temperature">--°C</span></span>
+                        </div>
+                        <div class="weather-item">
+                            <i class="fas fa-wind"></i>
+                            <span>Wind: <span id="windSpeed">-- km/h</span></span>
+                        </div>
+                        <div class="weather-item">
+                            <i class="fas fa-eye"></i>
+                            <span>Visibility: <span id="visibility">-- km</span></span>
+                        </div>
+                        <div class="weather-item">
+                            <i class="fas fa-cloud"></i>
+                            <span>Conditions: <span id="conditions">--</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <h3>Flight Details</h3>
+                    <div class="sidebar-actions">
+                        <button class="action-btn small" id="trackFlightBtn" title="Track This Flight">
+                            <i class="fas fa-crosshairs"></i>
+                        </button>
+                        <button class="action-btn small" id="shareFlightBtn" title="Share Flight">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                        <button class="close-btn" id="closeSidebar">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="sidebar-content" id="sidebarContent">
+                    <div class="no-selection">
+                        <i class="fas fa-mouse-pointer"></i>
+                        <p>Click on a flight to view details</p>
+                        <div class="feature-highlights">
+                            <div class="highlight-item">
+                                <i class="fas fa-cube"></i>
+                                <span>3D Aircraft Models</span>
+                            </div>
+                            <div class="highlight-item">
+                                <i class="fas fa-route"></i>
+                                <span>Real-time Flight Paths</span>
+                            </div>
+                            <div class="highlight-item">
+                                <i class="fas fa-cloud-rain"></i>
+                                <span>Weather Integration</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Mini Map -->
+        <div class="mini-map" id="miniMap">
+            <div class="mini-map-header">
+                <span>Global Overview</span>
+                <button class="mini-map-toggle" id="miniMapToggle">
+                    <i class="fas fa-compress"></i>
+                </button>
+            </div>
+            <div class="mini-map-content" id="miniMapContent"></div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Loading flight data...</p>
+                <div class="loading-progress">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Notification System -->
+        <div class="notification-container" id="notificationContainer"></div>
+
+        <!-- Flight Path Modal -->
+        <div class="modal" id="flightPathModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Flight Path History</h3>
+                    <button class="close-btn" id="closePathModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <canvas id="pathChart" width="400" height="200"></canvas>
+                    <div class="path-details" id="pathDetails"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio for notifications -->
+    <audio id="notificationSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBz2R2O/JdSEELIbP8duJOQcZZ7zs4ZpPEQxOpePwtmAcBjuRz+7FdSEENoTM9N2NQAoVX7jp66hVFApFnN/vvmUeBzuOzu3Kdi4ELoBp01xKAAAAAElFTkSuQmCC" type="audio/wav">
+    </audio>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="3d-engine.js"></script>
+    <script src="weather.js"></script>
+    <script src="advanced-features.js"></script>
+    <script src="enhanced-ui.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

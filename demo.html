@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyTracker Pro - Demo & Features</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .logo i {
+            color: #3b82f6;
+            font-size: 3rem;
+        }
+
+        .logo h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: #cbd5e1;
+            margin-bottom: 2rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            text-decoration: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.4);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+
+        .feature-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-description {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+        }
+
+        .comparison-section {
+            margin: 4rem 0;
+            text-align: center;
+        }
+
+        .comparison-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .comparison-table {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 16px;
+            overflow: hidden;
+            margin: 2rem auto;
+            max-width: 800px;
+        }
+
+        .comparison-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        .comparison-table th {
+            background: rgba(59, 130, 246, 0.1);
+            font-weight: 600;
+        }
+
+        .check {
+            color: #22c55e;
+        }
+
+        .cross {
+            color: #ef4444;
+        }
+
+        .screenshot-section {
+            margin: 4rem 0;
+            text-align: center;
+        }
+
+        .screenshot-placeholder {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(20px);
+            border: 2px dashed rgba(59, 130, 246, 0.3);
+            border-radius: 16px;
+            padding: 4rem 2rem;
+            margin: 2rem 0;
+        }
+
+        .screenshot-placeholder i {
+            font-size: 4rem;
+            color: #3b82f6;
+            margin-bottom: 1rem;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .tech-item {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            color: #cbd5e1;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+            color: #64748b;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .logo h1 {
+                font-size: 2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-plane"></i>
+                <h1>SkyTracker Pro</h1>
+            </div>
+            <p class="subtitle">
+                Premium flight tracking without the premium price. No ads, no subscriptions, just pure aviation data.
+            </p>
+            <a href="index.html" class="cta-button">
+                <i class="fas fa-rocket"></i> Launch SkyTracker Pro
+            </a>
+        </header>
+
+        <section class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <h3 class="feature-title">Real-Time Global Tracking</h3>
+                <p class="feature-description">
+                    Track thousands of aircraft worldwide in real-time. Updates every 10 seconds with precise ADS-B data from the OpenSky Network.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-ban"></i>
+                </div>
+                <h3 class="feature-title">Zero Advertisements</h3>
+                <p class="feature-description">
+                    Clean, distraction-free interface with no pop-ups, banners, or sponsored content. Focus on what matters - the flights.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <h3 class="feature-title">No Subscriptions</h3>
+                <p class="feature-description">
+                    All features available immediately. No premium tiers, no hidden paywalls, no credit card required. Completely free forever.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3 class="feature-title">Advanced Search</h3>
+                <p class="feature-description">
+                    Find specific flights by callsign, filter by country, or search by ICAO24 address. Instant results with smart matching.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3 class="feature-title">Fully Responsive</h3>
+                <p class="feature-description">
+                    Perfect experience on desktop, tablet, and mobile. Touch-optimized controls with adaptive layout for any screen size.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <h3 class="feature-title">Premium Design</h3>
+                <p class="feature-description">
+                    Modern glassmorphism interface with smooth animations. Dark theme optimized for extended use and professional appearance.
+                </p>
+            </div>
+        </section>
+
+        <section class="comparison-section">
+            <h2 class="comparison-title">Why Choose SkyTracker Pro?</h2>
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>SkyTracker Pro</th>
+                            <th>FlightRadar24</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Price</td>
+                            <td><i class="fas fa-check check"></i> Free Forever</td>
+                            <td><i class="fas fa-times cross"></i> $9.99+/month</td>
+                        </tr>
+                        <tr>
+                            <td>Advertisements</td>
+                            <td><i class="fas fa-check check"></i> Zero Ads</td>
+                            <td><i class="fas fa-times cross"></i> Heavy Advertising</td>
+                        </tr>
+                        <tr>
+                            <td>Update Frequency</td>
+                            <td><i class="fas fa-check check"></i> 10 seconds</td>
+                            <td><i class="fas fa-times cross"></i> 1+ minutes (free tier)</td>
+                        </tr>
+                        <tr>
+                            <td>Flight Limit</td>
+                            <td><i class="fas fa-check check"></i> Unlimited</td>
+                            <td><i class="fas fa-times cross"></i> Limited on free tier</td>
+                        </tr>
+                        <tr>
+                            <td>Open Source</td>
+                            <td><i class="fas fa-check check"></i> Yes</td>
+                            <td><i class="fas fa-times cross"></i> No</td>
+                        </tr>
+                        <tr>
+                            <td>Data Privacy</td>
+                            <td><i class="fas fa-check check"></i> No tracking</td>
+                            <td><i class="fas fa-times cross"></i> Data collection</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="screenshot-section">
+            <h2 class="comparison-title">Technology Stack</h2>
+            <div class="tech-stack">
+                <div class="tech-item">Vanilla JavaScript</div>
+                <div class="tech-item">Leaflet.js</div>
+                <div class="tech-item">OpenSky Network API</div>
+                <div class="tech-item">CSS3 Glassmorphism</div>
+                <div class="tech-item">HTML5</div>
+                <div class="tech-item">Font Awesome</div>
+                <div class="tech-item">Inter Font</div>
+                <div class="tech-item">CartoDB Maps</div>
+            </div>
+
+            <div class="screenshot-placeholder">
+                <i class="fas fa-image"></i>
+                <h3>Live Application Screenshot</h3>
+                <p>Click "Launch SkyTracker Pro" above to see the application in action</p>
+            </div>
+        </section>
+
+        <section style="text-align: center; margin: 4rem 0;">
+            <h2 class="comparison-title">Ready to Track Flights?</h2>
+            <p style="margin-bottom: 2rem; color: #cbd5e1;">
+                Experience premium flight tracking without the premium price tag.
+            </p>
+            <a href="index.html" class="cta-button">
+                <i class="fas fa-plane-departure"></i> Start Tracking Now
+            </a>
+        </section>
+
+        <footer>
+            <p>&copy; 2024 SkyTracker Pro. Built with ❤️ for aviation enthusiasts.</p>
+            <p>Flight data provided by OpenSky Network. No registration required.</p>
+        </footer>
+    </div>
+</body>
+</html>
